@@ -1,8 +1,8 @@
 {
-  "name": "analyticsjs-boilerplate",
+  "name": "analytics",
   "version": "0.2.0",
   "description": "Examples and best practices for using analytics.js",
-  "main": "index.js",
+  "main": "build",
   "scripts": {
     "build": "webpack -p",
     "start": "webpack-dev-server",
