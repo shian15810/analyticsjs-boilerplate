@@ -45,9 +45,6 @@ Then add this to your **index.html**:
   t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
   document,'script','//connect.facebook.net/en_US/fbevents.js');
 </script>
-<noscript>
-  <img height="1" width="1" style="display:none" src="//www.facebook.com/tr?id=253084045145192&ev=PageView&noscript=1" />
-</noscript>
 ```
 
 ## Usage
