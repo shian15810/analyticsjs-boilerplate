@@ -16,7 +16,8 @@ Three environment variables are required to make this work as expected:
 
 1. `REACT_APP_GA || GA`: (Google Analytics tracking code)
 2. `REACT_APP_FBQ || FBQ`: (Facebook Pixel tracking code)
-3. `REACT_APP_TZ || TZ`: ([Time Zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), e.g. 'Asia/Taipei')
+3. `REACT_APP_TV || TV`: (Google Analytics tracking version)
+4. `REACT_APP_TZ || TZ`: ([Time Zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), e.g. 'Asia/Taipei')
 
 Install using **npm**:
 
@@ -80,10 +81,13 @@ To send custom *event* and its details to **GA** and **Pixel**:
 ```js
 import {trackEvent} from 'analytics';
 
-trackEvent(category, action, label);
+const eventCategory = 'button';
+const eventAction = 'click';
+const eventLabel = 'star';
+trackEvent(eventCategory, eventAction, eventLabel);
 ```
 
-Where `category` and `action` are required params, and `label` is a optional param.
+Where `eventCategory` and `eventAction` are required params, and `eventLabel` is a optional param for storing the value of the action.
 
 **autotrack.js** has its built-in functionality to send *error* to **GA**, but *error* from `Promise` is not handled:
 
