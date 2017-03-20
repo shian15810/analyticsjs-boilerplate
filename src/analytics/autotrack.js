@@ -14,7 +14,7 @@
  * The tracking ID for your Google Analytics property.
  * https://support.google.com/analytics/answer/1032385
  */
-const TRACKING_ID = process.env.REACT_APP_GA;
+const TRACKING_ID = process.env.REACT_APP_GA || process.env.GA;
 
 
 /**
@@ -22,7 +22,7 @@ const TRACKING_ID = process.env.REACT_APP_GA;
  * implementation. This allows you to create a segment or view filter
  * that isolates only data captured with the most recent tracking changes.
  */
-const TRACKING_VERSION = '1';
+const TRACKING_VERSION = process.env.REACT_APP_TV || process.env.TV || '1';
 
 
 /**
@@ -108,7 +108,7 @@ const createTracker = () => {
   // Ensures all hits are sent via `navigator.sendBeacon()`.
   ga('set', 'transport', 'beacon');
 
-  fbq('init', process.env.REACT_APP_FBQ);
+  fbq('init', process.env.REACT_APP_FBQ || process.env.FBQ);
 };
 
 
@@ -186,7 +186,7 @@ const requireAutotrackPlugins = () => {
   });
   ga('require', 'maxScrollTracker', {
     sessionTimeout: 30,
-    timeZone: process.env.REACT_APP_TZ,
+    timeZone: process.env.REACT_APP_TZ || process.env.TZ || 'America/Los_Angeles',
     maxScrollMetricIndex: getDefinitionIndex(metrics.MAX_SCROLL_PERCENTAGE),
   });
   ga('require', 'outboundLinkTracker', {
@@ -195,7 +195,7 @@ const requireAutotrackPlugins = () => {
   ga('require', 'pageVisibilityTracker', {
     visibleMetricIndex: getDefinitionIndex(metrics.PAGE_VISIBLE),
     sessionTimeout: 30,
-    timeZone: process.env.REACT_APP_TZ,
+    timeZone: process.env.REACT_APP_TZ || process.env.TZ || 'America/Los_Angeles',
     fieldsObj: {[dimensions.HIT_SOURCE]: 'pageVisibilityTracker'},
   });
   ga('require', 'urlChangeTracker', {
@@ -274,12 +274,25 @@ const uuid = function b(a) {
 };
 
 
-export const trackPageview = pathname => {
-  ga('set', {page: pathname});
+export const trackEvent = (eventCategory, eventAction, eventLabel = NULL_VALUE) => {
+  ga('send', 'event', {
+    eventCategory,
+    eventAction,
+    eventLabel,
+  });
+
+  fbq('trackCustom', eventCategory, {
+    eventAction,
+    eventLabel,
+  });
+};
+
+
+export const trackPageview = (pathname) => {
   ga('send', 'pageview', pathname);
 
   fbq('track', 'PageView');
 };
 
 
-export default {init, trackError, trackPageview};
+export default {init, trackError, trackEvent, trackPageview};

@@ -21,14 +21,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  * The tracking ID for your Google Analytics property.
  * https://support.google.com/analytics/answer/1032385
  */
-var TRACKING_ID = process.env.REACT_APP_GA;
+var TRACKING_ID = process.env.REACT_APP_GA || process.env.GA;
 
 /**
  * Bump this when making backwards incompatible changes to the tracking
  * implementation. This allows you to create a segment or view filter
  * that isolates only data captured with the most recent tracking changes.
  */
-var TRACKING_VERSION = '1';
+var TRACKING_VERSION = process.env.REACT_APP_TV || process.env.TV || '1';
 
 /**
  * A default value for dimensions so unset values always are reported as
@@ -116,7 +116,7 @@ var createTracker = function createTracker() {
   // Ensures all hits are sent via `navigator.sendBeacon()`.
   ga('set', 'transport', 'beacon');
 
-  fbq('init', process.env.REACT_APP_FBQ);
+  fbq('init', process.env.REACT_APP_FBQ || process.env.FBQ);
 };
 
 /**
@@ -211,7 +211,7 @@ var requireAutotrackPlugins = function requireAutotrackPlugins() {
   });
   ga('require', 'maxScrollTracker', {
     sessionTimeout: 30,
-    timeZone: process.env.REACT_APP_TZ,
+    timeZone: process.env.REACT_APP_TZ || process.env.TZ || 'America/Los_Angeles',
     maxScrollMetricIndex: getDefinitionIndex(metrics.MAX_SCROLL_PERCENTAGE)
   });
   ga('require', 'outboundLinkTracker', {
@@ -220,7 +220,7 @@ var requireAutotrackPlugins = function requireAutotrackPlugins() {
   ga('require', 'pageVisibilityTracker', {
     visibleMetricIndex: getDefinitionIndex(metrics.PAGE_VISIBLE),
     sessionTimeout: 30,
-    timeZone: process.env.REACT_APP_TZ,
+    timeZone: process.env.REACT_APP_TZ || process.env.TZ || 'America/Los_Angeles',
     fieldsObj: _defineProperty({}, dimensions.HIT_SOURCE, 'pageVisibilityTracker')
   });
   ga('require', 'urlChangeTracker', {
@@ -300,11 +300,25 @@ var uuid = function b(a) {
   return a ? (a ^ Math.random() * 16 >> a / 4).toString(16) : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, b);
 };
 
+var trackEvent = exports.trackEvent = function trackEvent(eventCategory, eventAction) {
+  var eventLabel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : NULL_VALUE;
+
+  ga('send', 'event', {
+    eventCategory: eventCategory,
+    eventAction: eventAction,
+    eventLabel: eventLabel
+  });
+
+  fbq('trackCustom', eventCategory, {
+    eventAction: eventAction,
+    eventLabel: eventLabel
+  });
+};
+
 var trackPageview = exports.trackPageview = function trackPageview(pathname) {
-  ga('set', { page: pathname });
   ga('send', 'pageview', pathname);
 
   fbq('track', 'PageView');
 };
 
-exports.default = { init: init, trackError: trackError, trackPageview: trackPageview };
+exports.default = { init: init, trackError: trackError, trackEvent: trackEvent, trackPageview: trackPageview };
