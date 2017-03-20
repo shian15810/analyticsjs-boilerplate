@@ -211,7 +211,7 @@ var requireAutotrackPlugins = function requireAutotrackPlugins() {
   });
   ga('require', 'maxScrollTracker', {
     sessionTimeout: 30,
-    timeZone: process.env.REACT_APP_TZ || process.env.TZ || 'Asia/Taipei',
+    timeZone: process.env.REACT_APP_TZ || process.env.TZ || 'America/Los_Angeles',
     maxScrollMetricIndex: getDefinitionIndex(metrics.MAX_SCROLL_PERCENTAGE)
   });
   ga('require', 'outboundLinkTracker', {
@@ -220,7 +220,7 @@ var requireAutotrackPlugins = function requireAutotrackPlugins() {
   ga('require', 'pageVisibilityTracker', {
     visibleMetricIndex: getDefinitionIndex(metrics.PAGE_VISIBLE),
     sessionTimeout: 30,
-    timeZone: process.env.REACT_APP_TZ || process.env.TZ || 'Asia/Taipei',
+    timeZone: process.env.REACT_APP_TZ || process.env.TZ || 'America/Los_Angeles',
     fieldsObj: _defineProperty({}, dimensions.HIT_SOURCE, 'pageVisibilityTracker')
   });
   ga('require', 'urlChangeTracker', {
