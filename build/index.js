@@ -300,11 +300,25 @@ var uuid = function b(a) {
   return a ? (a ^ Math.random() * 16 >> a / 4).toString(16) : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, b);
 };
 
+var trackEvent = exports.trackEvent = function trackEvent(category, action) {
+  var label = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : NULL_VALUE;
+
+  ga('send', 'event', {
+    eventCategory: category,
+    eventAction: action,
+    eventLabel: label
+  });
+
+  fbq('trackCustom', category, {
+    action: action,
+    label: label
+  });
+};
+
 var trackPageview = exports.trackPageview = function trackPageview(pathname) {
-  ga('set', { page: pathname });
   ga('send', 'pageview', pathname);
 
   fbq('track', 'PageView');
 };
 
-exports.default = { init: init, trackError: trackError, trackPageview: trackPageview };
+exports.default = { init: init, trackError: trackError, trackEvent: trackEvent, trackPageview: trackPageview };
