@@ -2,11 +2,11 @@
 
 This is a fork from [philipwalton/analyticsjs-boilerplate](https://github.com/philipwalton/analyticsjs-boilerplate), only **autotrack.js** is currently supported.
 
-I have modified this a little bit to make it work with **Facebook Pixel** as well as setting **custom timezone**, which is required by some autotrack plugins.
+I have modified this a little bit to make it work with **Facebook Pixel** as well as setting custom **time zone**, which is required by some autotrack plugins.
 
-I have also added a function called **trackPageview** so that you can send pageview to GA and Pixel whenever the url route of your app changes.
+I have also added a function that you can manually send pageview to **GA** and **Pixel** whenever the url route of your app changes.
 
-Read below for more details.
+The APIs exposed are **init**, **trackError** and **trackPageview**. Read below for more details.
 
 ## Installation
 
@@ -14,7 +14,7 @@ Three environment variables are required to make this work as expected:
 
 1. `REACT_APP_GA`: (Google Analytics tracking code)
 2. `REACT_APP_FBQ`: (Facebook Pixel tracking code)
-3. `REACT_APP_TZ`: (Timezone, e.g. 'Asia/Taipei')
+3. `REACT_APP_TZ`: ([Time Zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), e.g. 'Asia/Taipei')
 
 Install using **npm**:
 
