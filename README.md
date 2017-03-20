@@ -17,7 +17,7 @@ First two environment variables are required to make this work as expected:
 1. `REACT_APP_GA` or `GA`: (**Google Analytics** tracking ID, **required**!)
 2. `REACT_APP_FBQ` or `FBQ`: (**Facebook Pixel** tracking ID, **required**!)
 3. `REACT_APP_TV` or `TV`: (Google Analytics tracking version, defaults to `'1'`.)
-4. `REACT_APP_TZ` or `TZ`: ([Time Zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), defaults to `'Asia/Taipei'`.)
+4. `REACT_APP_TZ` or `TZ`: ([Time Zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), defaults to `'America/Los_Angeles'`.)
 
 Install using **npm**:
 
