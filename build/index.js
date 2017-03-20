@@ -28,7 +28,7 @@ var TRACKING_ID = process.env.REACT_APP_GA || process.env.GA;
  * implementation. This allows you to create a segment or view filter
  * that isolates only data captured with the most recent tracking changes.
  */
-var TRACKING_VERSION = process.env.REACT_APP_TV || process.env.TV;
+var TRACKING_VERSION = process.env.REACT_APP_TV || process.env.TV || '1';
 
 /**
  * A default value for dimensions so unset values always are reported as
@@ -211,7 +211,7 @@ var requireAutotrackPlugins = function requireAutotrackPlugins() {
   });
   ga('require', 'maxScrollTracker', {
     sessionTimeout: 30,
-    timeZone: process.env.REACT_APP_TZ || process.env.TZ,
+    timeZone: process.env.REACT_APP_TZ || process.env.TZ || 'Asia/Taipei',
     maxScrollMetricIndex: getDefinitionIndex(metrics.MAX_SCROLL_PERCENTAGE)
   });
   ga('require', 'outboundLinkTracker', {
@@ -220,7 +220,7 @@ var requireAutotrackPlugins = function requireAutotrackPlugins() {
   ga('require', 'pageVisibilityTracker', {
     visibleMetricIndex: getDefinitionIndex(metrics.PAGE_VISIBLE),
     sessionTimeout: 30,
-    timeZone: process.env.REACT_APP_TZ || process.env.TZ,
+    timeZone: process.env.REACT_APP_TZ || process.env.TZ || 'Asia/Taipei',
     fieldsObj: _defineProperty({}, dimensions.HIT_SOURCE, 'pageVisibilityTracker')
   });
   ga('require', 'urlChangeTracker', {
