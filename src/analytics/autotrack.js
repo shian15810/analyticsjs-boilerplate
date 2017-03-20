@@ -274,12 +274,25 @@ const uuid = function b(a) {
 };
 
 
-export const trackPageview = pathname => {
-  ga('set', {page: pathname});
+export const trackEvent = (category, action, label = NULL_VALUE) => {
+  ga('send', 'event', {
+    eventCategory: category,
+    eventAction: action,
+    eventLabel: label,
+  });
+
+  fbq('trackCustom', category, {
+    action: action,
+    label: label,
+  });
+};
+
+
+export const trackPageview = (pathname) => {
   ga('send', 'pageview', pathname);
 
   fbq('track', 'PageView');
 };
 
 
-export default {init, trackError, trackPageview};
+export default {init, trackError, trackEvent, trackPageview};
