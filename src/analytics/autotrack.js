@@ -22,7 +22,7 @@ const TRACKING_ID = process.env.REACT_APP_GA || process.env.GA;
  * implementation. This allows you to create a segment or view filter
  * that isolates only data captured with the most recent tracking changes.
  */
-const TRACKING_VERSION = '1';
+const TRACKING_VERSION = process.env.REACT_APP_TV || process.env.TV;
 
 
 /**
