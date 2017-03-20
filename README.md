@@ -14,9 +14,9 @@ The APIs exposed are **init**, **trackError**, **trackEvent** and **trackPagevie
 
 Three environment variables are required to make this work as expected:
 
-1. `REACT_APP_GA`: (Google Analytics tracking code)
-2. `REACT_APP_FBQ`: (Facebook Pixel tracking code)
-3. `REACT_APP_TZ`: ([Time Zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), e.g. 'Asia/Taipei')
+1. `REACT_APP_GA || GA`: (Google Analytics tracking code)
+2. `REACT_APP_FBQ || FBQ`: (Facebook Pixel tracking code)
+3. `REACT_APP_TZ || TZ`: ([Time Zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), e.g. 'Asia/Taipei')
 
 Install using **npm**:
 
@@ -101,8 +101,9 @@ Alternatively, you can use another **ES6** `import` styles if that suits you:
 import analytics from 'analytics';
 
 const init = analytics.init;
-const trackPageview = analytics.trackPageview;
 const trackError = analytics.trackError;
+const trackEvent = analytics.trackEvent;
+const trackPageview = analytics.trackPageview;
 ```
 
 ---
