@@ -47,7 +47,7 @@ Then add this to your **index.html**:
 
 You can use this package on any framework, but I will demonstrate the example below in **React**.
 
-First, import `init` in your app and execute it before executing `ReactDOM.render`:
+Before anything else, import `init` in your app and execute it before executing `ReactDOM.render`:
 
 ```js
 import {init} from 'analytics';
@@ -55,17 +55,17 @@ import {render} from 'react-dom';
 import Root from './Root';
 
 const GA = process.env.REACT_APP_GA || process.env.GA;
-const FB = process.env.REACT_APP_FB || process.env.FB;
+const FBQ = process.env.REACT_APP_FBQ || process.env.FBQ;
 const TZ = process.env.REACT_APP_TZ || process.env.TZ;
 
-init({GA, FB, TZ});
+init({GA, FBQ, TZ});
 render((<Root/>), document.getElementById('root'));
 ```
 
-`GA` and `FB` are both required to make this work as expected:
+`GA` and `FBQ` are both required to be registered to make the following methods work as expected:
 
 1. `GA`: (**Google Analytics** tracking ID, **required**!)
-2. `FB`: (**Facebook Pixel** tracking ID, **required**!)
+2. `FBQ`: (**Facebook Pixel** tracking ID, **required**!)
 3. `TV`: (**Google Analytics** tracking version, defaults to `'1'`.)
 4. `TZ`: ([Time Zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), defaults to `'America/Los_Angeles'`.)
 
