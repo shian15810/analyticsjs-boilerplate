@@ -12,19 +12,25 @@ The APIs exposed are **init**, **trackError**, **trackEvent** and **trackPagevie
 
 ## Installation
 
-Install using **npm**:
-
-```sh
-npm install --save https://github.com/shian15810/analytics.git
-```
-
-Or install using **yarn**:
+Install using **yarn**:
 
 ```sh
 yarn add https://github.com/shian15810/analytics.git
 ```
 
-Then add this to your **index.html**:
+Or install using **npm**:
+
+```sh
+npm install --save https://github.com/shian15810/analytics.git
+```
+
+Or Install using **bower**:
+
+```sh
+bower install --save https://github.com/shian15810/analytics.git
+```
+
+Then add this to your **index.html** right before the end of `</body>`:
 
 ```html
 <script>
@@ -41,6 +47,12 @@ Then add this to your **index.html**:
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 </script>
 <script async src="//unpkg.com/autotrack/autotrack.js"></script>
+```
+
+Alternatively, you can include this package directly into **index.html** right after the above `<script async src="//unpkg.com/autotrack/autotrack.js"></script>`, then you can directly access it using `analytics` or `window.analytics`:
+
+```html
+<script async src="//rawgit.com/shian15810/analytics/master/build/analytics/autotrack.js"></script>
 ```
 
 ## Usage
