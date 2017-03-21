@@ -84,8 +84,8 @@ import {trackEvent} from 'analytics';
 const eventCategory = 'button';
 const eventAction = 'click';
 const eventLabel = 'star';
-trackEvent(eventCategory, eventAction, eventLabel); // Send to GA only.
-trackEvent(eventCategory, eventAction, eventLabel, true); // Send to GA and Pixel.
+trackEvent({eventCategory, eventAction, eventLabel}); // Send to GA only.
+trackEvent({eventCategory, eventAction, eventLabel}, true); // Send to GA and Pixel.
 ```
 
 Where `eventCategory` and `eventAction` are required params, and `eventLabel` is a optional param for storing the value of the action.
