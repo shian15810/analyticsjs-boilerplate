@@ -302,6 +302,7 @@ var uuid = function b(a) {
 
 var trackEvent = exports.trackEvent = function trackEvent(eventCategory, eventAction) {
   var eventLabel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : NULL_VALUE;
+  var trackFbq = arguments[3];
 
   ga('send', 'event', {
     eventCategory: eventCategory,
@@ -309,7 +310,7 @@ var trackEvent = exports.trackEvent = function trackEvent(eventCategory, eventAc
     eventLabel: eventLabel
   });
 
-  fbq('trackCustom', eventCategory, {
+  trackFbq && fbq('trackCustom', eventCategory, {
     eventAction: eventAction,
     eventLabel: eventLabel
   });

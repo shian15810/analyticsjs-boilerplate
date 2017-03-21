@@ -274,14 +274,14 @@ const uuid = function b(a) {
 };
 
 
-export const trackEvent = (eventCategory, eventAction, eventLabel = NULL_VALUE) => {
+export const trackEvent = (eventCategory, eventAction, eventLabel = NULL_VALUE, trackFbq) => {
   ga('send', 'event', {
     eventCategory,
     eventAction,
     eventLabel,
   });
 
-  fbq('trackCustom', eventCategory, {
+  trackFbq && fbq('trackCustom', eventCategory, {
     eventAction,
     eventLabel,
   });
