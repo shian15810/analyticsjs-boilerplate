@@ -318,12 +318,17 @@ const trackPageview = (pathname) => {
   if (typeof exports === 'object'
   && exports
   && typeof exports.nodeName !== 'string') {
-    const analytics = definition();
-    Object.assign(exports, analytics, {default: analytics});
+    Object.assign(exports, definition(true));
   } else if (typeof define === 'function' && define.amd) {
-    define(definition);
+    define(definition(true));
   } else {
-    context[name] = definition();
+    context[name] = definition(false);
   }
   // eslint-disable-next-line no-invalid-this
-})('analytics', this, () => ({init, trackError, trackEvent, trackPageview}));
+})('analytics', this, (def) => {
+  const analytics = {init, trackError, trackEvent, trackPageview};
+  if (def) {
+    return {...analytics, default: analytics};
+  }
+  return analytics;
+});
