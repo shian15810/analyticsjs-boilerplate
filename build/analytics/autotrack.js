@@ -12,7 +12,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 // import 'autotrack/lib/plugins/url-change-tracker';
 
 
-/* global ga, fbq */
+/* global define, ga, fbq */
 
 /**
  * The tracking ID for your Google Analytics property.
@@ -77,8 +77,6 @@ var init = function init(_ref) {
       TV = _ref$TV === undefined ? TRACKING_VERSION : _ref$TV,
       _ref$TZ = _ref.TZ,
       TZ = _ref$TZ === undefined ? TRACKING_TIME_ZONE : _ref$TZ;
-
-  if (!(GA && FB)) throw Error('Missing TRACKING_ID.');
 
   TRACKING_ID_GA = GA;
   TRACKING_ID_FBQ = FBQ;
@@ -317,7 +315,7 @@ var uuid = function b(a) {
   return a ? (a ^ Math.random() * 16 >> a / 4).toString(16) : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, b);
 };
 
-var trackEvent = function trackEvent(_ref2, trackFb) {
+var trackEvent = function trackEvent(_ref2, trackFbq) {
   var eventCategory = _ref2.eventCategory,
       eventAction = _ref2.eventAction,
       _ref2$eventLabel = _ref2.eventLabel,
@@ -329,7 +327,7 @@ var trackEvent = function trackEvent(_ref2, trackFb) {
     eventLabel: eventLabel
   });
 
-  trackFb && fbq('trackCustom', eventCategory, {
+  trackFbq && fbq('trackCustom', eventCategory, {
     eventAction: eventAction,
     eventLabel: eventLabel
   });
@@ -350,6 +348,7 @@ var trackPageview = function trackPageview(pathname) {
   } else {
     context[name] = definition();
   }
+  // eslint-disable-next-line no-invalid-this
 })('analytics', this, function () {
   return { init: init, trackError: trackError, trackEvent: trackEvent, trackPageview: trackPageview };
 });

@@ -6,7 +6,7 @@
 // import 'autotrack/lib/plugins/url-change-tracker';
 
 
-/* global ga, fbq */
+/* global define, ga, fbq */
 
 
 /**
@@ -70,9 +70,12 @@ const metrics = {
  * Initializes all the analytics setup. Creates trackers and sets initial
  * values on the trackers.
  */
-const init = ({GA = TRACKING_ID_GA, FBQ = TRACKING_ID_FBQ, TV = TRACKING_VERSION, TZ = TRACKING_TIME_ZONE}) => {
-  if (!(GA && FB)) throw Error('Missing TRACKING_ID.');
-
+const init = ({
+  GA = TRACKING_ID_GA,
+  FBQ = TRACKING_ID_FBQ,
+  TV = TRACKING_VERSION,
+  TZ = TRACKING_TIME_ZONE,
+}) => {
   TRACKING_ID_GA = GA;
   TRACKING_ID_FBQ = FBQ;
   TRACKING_VERSION = TV;
@@ -290,14 +293,14 @@ const trackEvent = ({
   eventCategory,
   eventAction,
   eventLabel = NULL_VALUE,
-}, trackFb) => {
+}, trackFbq) => {
   ga('send', 'event', {
     eventCategory,
     eventAction,
     eventLabel,
   });
 
-  trackFb && fbq('trackCustom', eventCategory, {
+  trackFbq && fbq('trackCustom', eventCategory, {
     eventAction,
     eventLabel,
   });
@@ -312,7 +315,9 @@ const trackPageview = (pathname) => {
 
 
 ((name, context, definition) => {
-  if (typeof exports === 'object' && exports && typeof exports.nodeName !== 'string') {
+  if (typeof exports === 'object'
+  && exports
+  && typeof exports.nodeName !== 'string') {
     const analytics = definition();
     Object.assign(exports, analytics, {default: analytics});
   } else if (typeof define === 'function' && define.amd) {
@@ -320,4 +325,5 @@ const trackPageview = (pathname) => {
   } else {
     context[name] = definition();
   }
+  // eslint-disable-next-line no-invalid-this
 })('analytics', this, () => ({init, trackError, trackEvent, trackPageview}));
