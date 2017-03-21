@@ -12,13 +12,6 @@ The APIs exposed are **init**, **trackError**, **trackEvent** and **trackPagevie
 
 ## Installation
 
-First two environment variables are required to make this work as expected:
-
-1. `REACT_APP_GA` or `GA`: (**Google Analytics** tracking ID, **required**!)
-2. `REACT_APP_FBQ` or `FBQ`: (**Facebook Pixel** tracking ID, **required**!)
-3. `REACT_APP_TV` or `TV`: (**Google Analytics** tracking version, defaults to `'1'`.)
-4. `REACT_APP_TZ` or `TZ`: ([Time Zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), defaults to `'America/Los_Angeles'`.)
-
 Install using **npm**:
 
 ```sh
@@ -54,16 +47,27 @@ Then add this to your **index.html**:
 
 You can use this package on any framework, but I will demonstrate the example below in **React**.
 
-In your react app, import `init` and execute it before executing `ReactDOM.render`:
+First, import `init` in your app and execute it before executing `ReactDOM.render`:
 
 ```js
 import {init} from 'analytics';
 import {render} from 'react-dom';
 import Root from './Root';
 
-init();
+const GA = process.env.REACT_APP_GA || process.env.GA;
+const FB = process.env.REACT_APP_FB || process.env.FB;
+const TZ = process.env.REACT_APP_TZ || process.env.TZ;
+
+init({GA, FB, TZ});
 render((<Root/>), document.getElementById('root'));
 ```
+
+`GA` and `FB` are both required to make this work as expected:
+
+1. `GA`: (**Google Analytics** tracking ID, **required**!)
+2. `FB`: (**Facebook Pixel** tracking ID, **required**!)
+3. `TV`: (**Google Analytics** tracking version, defaults to `'1'`.)
+4. `TZ`: ([Time Zone](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), defaults to `'America/Los_Angeles'`.)
 
 You can also send `pageview` manually whenever the route of your app changes, such as with **React Router**:
 
