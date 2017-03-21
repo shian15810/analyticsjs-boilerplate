@@ -2,7 +2,7 @@
   "name": "analytics",
   "version": "0.2.0",
   "description": "Examples and best practices for using analytics.js",
-  "main": "build",
+  "main": "build/analytics/autotrack",
   "scripts": {
     "build": "webpack -p",
     "start": "webpack-dev-server",
