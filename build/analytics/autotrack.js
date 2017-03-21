@@ -1,5 +1,7 @@
 'use strict';
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -341,14 +343,17 @@ var trackPageview = function trackPageview(pathname) {
 
 (function (name, context, definition) {
   if ((typeof exports === 'undefined' ? 'undefined' : _typeof(exports)) === 'object' && exports && typeof exports.nodeName !== 'string') {
-    var analytics = definition();
-    Object.assign(exports, analytics, { default: analytics });
+    Object.assign(exports, definition(true));
   } else if (typeof define === 'function' && define.amd) {
-    define(definition);
+    define(definition(true));
   } else {
-    context[name] = definition();
+    context[name] = definition(false);
   }
   // eslint-disable-next-line no-invalid-this
-})('analytics', this, function () {
-  return { init: init, trackError: trackError, trackEvent: trackEvent, trackPageview: trackPageview };
+})('analytics', this, function (def) {
+  var analytics = { init: init, trackError: trackError, trackEvent: trackEvent, trackPageview: trackPageview };
+  if (def) {
+    return _extends({}, analytics, { default: analytics });
+  }
+  return analytics;
 });
