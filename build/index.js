@@ -300,9 +300,8 @@ var uuid = function b(a) {
   return a ? (a ^ Math.random() * 16 >> a / 4).toString(16) : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, b);
 };
 
-var trackEvent = exports.trackEvent = function trackEvent(eventCategory, eventAction) {
-  var eventLabel = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : NULL_VALUE;
-  var trackFbq = arguments[3];
+var trackEvent = exports.trackEvent = function trackEvent(trackFbq, eventCategory, eventAction) {
+  var eventLabel = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : NULL_VALUE;
 
   ga('send', 'event', {
     eventCategory: eventCategory,
