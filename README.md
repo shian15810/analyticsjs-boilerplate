@@ -2,11 +2,11 @@
 
 This is a fork from [philipwalton/analyticsjs-boilerplate](https://github.com/philipwalton/analyticsjs-boilerplate), only **autotrack.js** is currently supported.
 
-I have modified this a little bit to make it work with **Facebook Pixel** as well as setting custom **time zone**, which is required by some autotrack plugins.
+I have modified this a little bit to make it work with **Facebook Pixel** as well as setting custom **time zone**, which is required by some **autotrack** plugins.
 
 I have also added a function that you can manually send pageview to **GA** and **Pixel** whenever the url route of your app changes, if you wish doing so manually.
 
-You can also send custom *event* (**GA** & **Pixel**) and *error* (**GA** only) using the exposed APIs provided in this package.
+You can also send custom *event* (**GA** / **Pixel**) and *error* (**GA** only) using the exposed APIs provided in this package.
 
 The APIs exposed are **init**, **trackError**, **trackEvent** and **trackPageview**. Read below for more details.
 
@@ -84,7 +84,8 @@ import {trackEvent} from 'analytics';
 const eventCategory = 'button';
 const eventAction = 'click';
 const eventLabel = 'star';
-trackEvent(eventCategory, eventAction, eventLabel);
+trackEvent(eventCategory, eventAction, eventLabel); // Send to GA only.
+trackEvent(eventCategory, eventAction, eventLabel, true); // Send to GA and Pixel.
 ```
 
 Where `eventCategory` and `eventAction` are required params, and `eventLabel` is a optional param for storing the value of the action.
