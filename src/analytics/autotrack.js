@@ -16,7 +16,7 @@
 let TRACKING_ID_GA;
 
 
-let TRACKING_ID_FB;
+let TRACKING_ID_FBQ;
 
 
 /**
@@ -70,11 +70,11 @@ const metrics = {
  * Initializes all the analytics setup. Creates trackers and sets initial
  * values on the trackers.
  */
-const init = ({GA = TRACKING_ID_GA, FB = TRACKING_ID_FB, TV = TRACKING_VERSION, TZ = TRACKING_TIME_ZONE}) => {
+const init = ({GA = TRACKING_ID_GA, FBQ = TRACKING_ID_FBQ, TV = TRACKING_VERSION, TZ = TRACKING_TIME_ZONE}) => {
   if (!(GA && FB)) throw Error('Missing TRACKING_ID.');
 
   TRACKING_ID_GA = GA;
-  TRACKING_ID_FB = FB;
+  TRACKING_ID_FBQ = FBQ;
   TRACKING_VERSION = TV;
   TRACKING_TIME_ZONE = TZ;
 
@@ -120,7 +120,7 @@ const createTracker = () => {
   // Ensures all hits are sent via `navigator.sendBeacon()`.
   ga('set', 'transport', 'beacon');
 
-  fbq('init', TRACKING_ID_FB);
+  fbq('init', TRACKING_ID_FBQ);
 };
 
 

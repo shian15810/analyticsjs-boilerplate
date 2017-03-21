@@ -20,7 +20,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  */
 var TRACKING_ID_GA = void 0;
 
-var TRACKING_ID_FB = void 0;
+var TRACKING_ID_FBQ = void 0;
 
 /**
  * Bump this when making backwards incompatible changes to the tracking
@@ -71,8 +71,8 @@ var metrics = {
 var init = function init(_ref) {
   var _ref$GA = _ref.GA,
       GA = _ref$GA === undefined ? TRACKING_ID_GA : _ref$GA,
-      _ref$FB = _ref.FB,
-      FB = _ref$FB === undefined ? TRACKING_ID_FB : _ref$FB,
+      _ref$FBQ = _ref.FBQ,
+      FBQ = _ref$FBQ === undefined ? TRACKING_ID_FBQ : _ref$FBQ,
       _ref$TV = _ref.TV,
       TV = _ref$TV === undefined ? TRACKING_VERSION : _ref$TV,
       _ref$TZ = _ref.TZ,
@@ -81,7 +81,7 @@ var init = function init(_ref) {
   if (!(GA && FB)) throw Error('Missing TRACKING_ID.');
 
   TRACKING_ID_GA = GA;
-  TRACKING_ID_FB = FB;
+  TRACKING_ID_FBQ = FBQ;
   TRACKING_VERSION = TV;
   TRACKING_TIME_ZONE = TZ;
 
@@ -133,7 +133,7 @@ var createTracker = function createTracker() {
   // Ensures all hits are sent via `navigator.sendBeacon()`.
   ga('set', 'transport', 'beacon');
 
-  fbq('init', TRACKING_ID_FB);
+  fbq('init', TRACKING_ID_FBQ);
 };
 
 /**
@@ -350,6 +350,6 @@ var trackPageview = function trackPageview(pathname) {
   } else {
     context[name] = definition();
   }
-})('analytics', undefined, function () {
+})('analytics', this, function () {
   return { init: init, trackError: trackError, trackEvent: trackEvent, trackPageview: trackPageview };
 });
