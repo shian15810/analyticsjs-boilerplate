@@ -320,7 +320,7 @@ const trackPageview = (pathname) => {
   && typeof exports.nodeName !== 'string') {
     Object.assign(exports, definition(true));
   } else if (typeof define === 'function' && define.amd) {
-    define(definition(true));
+    define('analytics', () => definition(true));
   } else {
     context[name] = definition(false);
   }
