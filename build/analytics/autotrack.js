@@ -345,7 +345,9 @@ var trackPageview = function trackPageview(pathname) {
   if ((typeof exports === 'undefined' ? 'undefined' : _typeof(exports)) === 'object' && exports && typeof exports.nodeName !== 'string') {
     Object.assign(exports, definition(true));
   } else if (typeof define === 'function' && define.amd) {
-    define(definition(true));
+    define('analytics', function () {
+      return definition(true);
+    });
   } else {
     context[name] = definition(false);
   }
