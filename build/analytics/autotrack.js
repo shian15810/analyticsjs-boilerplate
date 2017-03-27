@@ -15,7 +15,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 // import 'autotrack/lib/plugins/page-visibility-tracker';
 // import 'autotrack/lib/plugins/url-change-tracker';
 
-
 /* global define, fbq, ga */
 
 var TRACKING_ID_FBQ = void 0;
@@ -372,8 +371,8 @@ var all = { init: init, trackError: trackError, trackEvent: trackEvent, trackPag
   }
 })('analytics', this, function (def) {
   // eslint-disable-line no-invalid-this
-  var analytics = Object.assign.apply(Object, _toConsumableArray(Object.keys(all).map(function (e, i, a) {
-    return _defineProperty({}, e, hasWindow() ? a[e] : function () {});
+  var analytics = Object.assign.apply(Object, _toConsumableArray(Object.keys(all).map(function (e) {
+    return _defineProperty({}, e, hasWindow() ? all[e] : function () {});
   })));
   if (def) {
     return _extends({}, analytics, { default: analytics });

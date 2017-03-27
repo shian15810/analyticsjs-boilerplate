@@ -336,8 +336,8 @@ const all = {init, trackError, trackEvent, trackPageview};
     context[name] = definition(false);
   }
 })('analytics', this, (def) => { // eslint-disable-line no-invalid-this
-  const analytics = Object.assign(...Object.keys(all).map((e, i, a) => ({
-    [e]: hasWindow() ? a[e] : () => {},
+  const analytics = Object.assign(...Object.keys(all).map((e) => ({
+    [e]: hasWindow() ? all[e] : () => {},
   })));
   if (def) {
     return {...analytics, default: analytics};
