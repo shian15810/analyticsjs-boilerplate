@@ -4,6 +4,8 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // Import the individual autotrack plugins you want to use.
@@ -14,7 +16,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 // import 'autotrack/lib/plugins/url-change-tracker';
 
 
-/* global define, ga, fbq */
+/* global define, fbq, ga */
 
 /**
  * The tracking ID for your Google Analytics property.
@@ -351,9 +353,15 @@ var trackPageview = function trackPageview(pathname) {
   } else {
     context[name] = definition(false);
   }
-  // eslint-disable-next-line no-invalid-this
 })('analytics', this, function (def) {
-  var analytics = { init: init, trackError: trackError, trackEvent: trackEvent, trackPageview: trackPageview };
+  // eslint-disable-line no-invalid-this
+  var hasFbq = (typeof window === 'undefined' ? 'undefined' : _typeof(window)) === 'object' && window.fbq && fbq.loaded;
+  var hasGa = (typeof window === 'undefined' ? 'undefined' : _typeof(window)) === 'object' && window.ga && ga.loaded;
+  var analytics = Object.assign.apply(Object, _toConsumableArray(Object.keys({
+    init: init, trackError: trackError, trackEvent: trackEvent, trackPageview: trackPageview
+  }).map(function (e, i, a) {
+    return _defineProperty({}, e, hasFbq && hasGa ? a[e] : function () {});
+  })));
   if (def) {
     return _extends({}, analytics, { default: analytics });
   }

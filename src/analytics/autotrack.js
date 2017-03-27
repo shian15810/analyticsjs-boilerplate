@@ -6,7 +6,7 @@
 // import 'autotrack/lib/plugins/url-change-tracker';
 
 
-/* global define, ga, fbq */
+/* global define, fbq, ga */
 
 
 /**
@@ -324,9 +324,14 @@ const trackPageview = (pathname) => {
   } else {
     context[name] = definition(false);
   }
-  // eslint-disable-next-line no-invalid-this
-})('analytics', this, (def) => {
-  const analytics = {init, trackError, trackEvent, trackPageview};
+})('analytics', this, (def) => { // eslint-disable-line no-invalid-this
+  const hasFbq = typeof window === 'object' && window.fbq && fbq.loaded;
+  const hasGa = typeof window === 'object' && window.ga && ga.loaded;
+  const analytics = Object.assign(...Object.keys({
+    init, trackError, trackEvent, trackPageview,
+  }).map((e, i, a) => ({
+    [e]: (hasFbq && hasGa) ? a[e] : () => {},
+  })));
   if (def) {
     return {...analytics, default: analytics};
   }
