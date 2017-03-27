@@ -326,11 +326,7 @@ const trackPageview = (pathname) => {
   }
   // eslint-disable-next-line no-invalid-this
 })('analytics', this, (def) => {
-  const analytics = Object.assign(...Object.values({
-    init, trackError, trackEvent, trackPageview
-  }).map(f => ({
-    [f.name]: (typeof window === 'object' && window.ga && ga.loaded) ? f : () => {}
-  })));
+  const analytics = {init, trackError, trackEvent, trackPageview};
   if (def) {
     return {...analytics, default: analytics};
   }

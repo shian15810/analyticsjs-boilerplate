@@ -4,8 +4,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // Import the individual autotrack plugins you want to use.
@@ -355,14 +353,7 @@ var trackPageview = function trackPageview(pathname) {
   }
   // eslint-disable-next-line no-invalid-this
 })('analytics', this, function (def) {
-  var analytics = Object.assign.apply(Object, _toConsumableArray(Object.values({
-    init: init,
-    trackError: trackError,
-    trackEvent: trackEvent,
-    trackPageview: trackPageview
-  }).map(function (f) {
-    return _defineProperty({}, f.name, (typeof window === 'undefined' ? 'undefined' : _typeof(window)) === 'object' && window.ga && ga.loaded ? f : function () {});
-  })));
+  var analytics = { init: init, trackError: trackError, trackEvent: trackEvent, trackPageview: trackPageview };
   if (def) {
     return _extends({}, analytics, { default: analytics });
   }
