@@ -9,14 +9,14 @@
 /* global define, fbq, ga */
 
 
+let TRACKING_ID_FBQ;
+
+
 /**
  * The tracking ID for your Google Analytics property.
  * https://support.google.com/analytics/answer/1032385
  */
 let TRACKING_ID_GA;
-
-
-let TRACKING_ID_FBQ;
 
 
 /**
@@ -36,6 +36,12 @@ let TRACKING_TIME_ZONE = 'America/Los_Angeles';
  * values in reports.
  */
 const NULL_VALUE = '(not set)';
+
+
+const hasWindow = () => (typeof window === 'object');
+const fbqLoaded = () => (window.fbq && fbq.loaded);
+const gaLoaded = () => (window.ga && ga.loaded);
+const bothLoaded = () => (fbqLoaded() && gaLoaded());
 
 
 /**
@@ -71,25 +77,27 @@ const metrics = {
  * values on the trackers.
  */
 const init = ({
-  GA = TRACKING_ID_GA,
   FBQ = TRACKING_ID_FBQ,
+  GA = TRACKING_ID_GA,
   TV = TRACKING_VERSION,
   TZ = TRACKING_TIME_ZONE,
 }) => {
-  TRACKING_ID_GA = GA;
   TRACKING_ID_FBQ = FBQ;
+  TRACKING_ID_GA = GA;
   TRACKING_VERSION = TV;
   TRACKING_TIME_ZONE = TZ;
 
-  // Initialize the command queue in case analytics.js hasn't loaded yet.
-  window.ga = window.ga || ((...args) => (ga.q = ga.q || []).push(args));
+  bothLoaded() && (() => {
+    // Initialize the command queue in case analytics.js hasn't loaded yet.
+    window.ga = window.ga || ((...args) => (ga.q = ga.q || []).push(args));
 
-  createTracker();
-  trackErrors();
-  trackCustomDimensions();
-  requireAutotrackPlugins();
-  sendInitialPageview();
-  sendNavigationTimingMetrics();
+    createTracker();
+    trackErrors();
+    trackCustomDimensions();
+    requireAutotrackPlugins();
+    sendInitialPageview();
+    sendNavigationTimingMetrics();
+  })();
 };
 
 
@@ -104,7 +112,7 @@ const init = ({
  * @param {Object=} fieldsObj
  */
 const trackError = (err, fieldsObj = {}) => {
-  ga('send', 'event', Object.assign({
+  gaLoaded() && ga('send', 'event', Object.assign({
     eventCategory: 'Error',
     eventAction: err.name,
     eventLabel: `${err.message}\n${err.stack || '(no stack trace)'}`,
@@ -294,13 +302,13 @@ const trackEvent = ({
   eventAction,
   eventLabel = NULL_VALUE,
 }, trackFbq) => {
-  ga('send', 'event', {
+  gaLoaded() && ga('send', 'event', {
     eventCategory,
     eventAction,
     eventLabel,
   });
 
-  trackFbq && fbq('trackCustom', eventCategory, {
+  fbqLoaded() && trackFbq && fbq('trackCustom', eventCategory, {
     eventAction,
     eventLabel,
   });
@@ -308,10 +316,13 @@ const trackEvent = ({
 
 
 const trackPageview = (pathname) => {
-  ga('send', 'pageview', pathname);
+  gaLoaded() && ga('send', 'pageview', pathname);
 
-  fbq('track', 'PageView');
+  fbqLoaded() && fbq('track', 'PageView');
 };
+
+
+const all = {init, trackError, trackEvent, trackPageview};
 
 
 ((name, context, definition) => {
@@ -325,12 +336,8 @@ const trackPageview = (pathname) => {
     context[name] = definition(false);
   }
 })('analytics', this, (def) => { // eslint-disable-line no-invalid-this
-  const hasFbq = typeof window === 'object' && window.fbq && fbq.loaded;
-  const hasGa = typeof window === 'object' && window.ga && ga.loaded;
-  const analytics = Object.assign(...Object.keys({
-    init, trackError, trackEvent, trackPageview,
-  }).map((e, i, a) => ({
-    [e]: (hasFbq && hasGa) ? a[e] : () => {},
+  const analytics = Object.assign(...Object.keys(all).map((e, i, a) => ({
+    [e]: hasWindow() ? a[e] : () => {},
   })));
   if (def) {
     return {...analytics, default: analytics};
