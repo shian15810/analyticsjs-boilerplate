@@ -15,6 +15,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 // import 'autotrack/lib/plugins/page-visibility-tracker';
 // import 'autotrack/lib/plugins/url-change-tracker';
 
+
 /* global define, fbq, ga */
 
 var TRACKING_ID_FBQ = void 0;
@@ -42,16 +43,16 @@ var TRACKING_TIME_ZONE = 'America/Los_Angeles';
 var NULL_VALUE = '(not set)';
 
 var hasWindow = function hasWindow() {
-  return (typeof window === 'undefined' ? 'undefined' : _typeof(window)) === 'object';
+  return (typeof window === 'undefined' ? 'undefined' : _typeof(window)) === 'object' && window;
 };
-var fbqLoaded = function fbqLoaded() {
-  return window.fbq && fbq.loaded;
+var hasFbq = function hasFbq() {
+  return _typeof(window.fbq) === 'object' && window.fbq;
 };
-var gaLoaded = function gaLoaded() {
-  return window.ga && ga.loaded;
+var hasGa = function hasGa() {
+  return _typeof(window.ga) === 'object' && window.ga;
 };
-var bothLoaded = function bothLoaded() {
-  return fbqLoaded() && gaLoaded();
+var hasBoth = function hasBoth() {
+  return hasFbq() && hasGa();
 };
 
 /**
@@ -99,7 +100,7 @@ var init = function init(_ref) {
   TRACKING_VERSION = TV;
   TRACKING_TIME_ZONE = TZ;
 
-  bothLoaded() && function () {
+  hasBoth() && function () {
     // Initialize the command queue in case analytics.js hasn't loaded yet.
     window.ga = window.ga || function () {
       for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
@@ -131,7 +132,7 @@ var init = function init(_ref) {
 var trackError = function trackError(err) {
   var fieldsObj = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-  gaLoaded() && ga('send', 'event', Object.assign({
+  hasGa() && ga('send', 'event', Object.assign({
     eventCategory: 'Error',
     eventAction: err.name,
     eventLabel: err.message + '\n' + (err.stack || '(no stack trace)'),
@@ -339,25 +340,25 @@ var trackEvent = function trackEvent(_ref2, trackFbq) {
       _ref2$eventLabel = _ref2.eventLabel,
       eventLabel = _ref2$eventLabel === undefined ? NULL_VALUE : _ref2$eventLabel;
 
-  gaLoaded() && ga('send', 'event', {
+  hasGa() && ga('send', 'event', {
     eventCategory: eventCategory,
     eventAction: eventAction,
     eventLabel: eventLabel
   });
 
-  fbqLoaded() && trackFbq && fbq('trackCustom', eventCategory, {
+  hasFbq() && trackFbq && fbq('trackCustom', eventCategory, {
     eventAction: eventAction,
     eventLabel: eventLabel
   });
 };
 
 var trackPageview = function trackPageview(pathname) {
-  gaLoaded() && ga('send', 'pageview', pathname);
+  hasGa() && ga('send', 'pageview', pathname);
 
-  fbqLoaded() && fbq('track', 'PageView');
+  hasFbq() && fbq('track', 'PageView');
 };
 
-var all = { init: init, trackError: trackError, trackEvent: trackEvent, trackPageview: trackPageview };
+var func = { init: init, trackError: trackError, trackEvent: trackEvent, trackPageview: trackPageview };
 
 (function (name, context, definition) {
   if ((typeof exports === 'undefined' ? 'undefined' : _typeof(exports)) === 'object' && exports && typeof exports.nodeName !== 'string') {
@@ -369,10 +370,10 @@ var all = { init: init, trackError: trackError, trackEvent: trackEvent, trackPag
   } else {
     context[name] = definition(false);
   }
-})('analytics', this, function (def) {
+})('analytics', undefined, function (def) {
   // eslint-disable-line no-invalid-this
-  var analytics = Object.assign.apply(Object, _toConsumableArray(Object.keys(all).map(function (e) {
-    return _defineProperty({}, e, hasWindow() ? all[e] : function () {});
+  var analytics = Object.assign.apply(Object, _toConsumableArray(Object.keys(func).map(function (e) {
+    return _defineProperty({}, e, hasWindow() ? func[e] : function () {});
   })));
   if (def) {
     return _extends({}, analytics, { default: analytics });

@@ -38,10 +38,10 @@ let TRACKING_TIME_ZONE = 'America/Los_Angeles';
 const NULL_VALUE = '(not set)';
 
 
-const hasWindow = () => (typeof window === 'object');
-const fbqLoaded = () => (window.fbq && fbq.loaded);
-const gaLoaded = () => (window.ga && ga.loaded);
-const bothLoaded = () => (fbqLoaded() && gaLoaded());
+const hasWindow = () => typeof window === 'object' && window;
+const hasFbq = () => typeof window.fbq === 'object' && window.fbq;
+const hasGa = () => typeof window.ga === 'object' && window.ga;
+const hasBoth = () => hasFbq() && hasGa();
 
 
 /**
@@ -87,7 +87,7 @@ const init = ({
   TRACKING_VERSION = TV;
   TRACKING_TIME_ZONE = TZ;
 
-  bothLoaded() && (() => {
+  hasBoth() && (() => {
     // Initialize the command queue in case analytics.js hasn't loaded yet.
     window.ga = window.ga || ((...args) => (ga.q = ga.q || []).push(args));
 
@@ -112,7 +112,7 @@ const init = ({
  * @param {Object=} fieldsObj
  */
 const trackError = (err, fieldsObj = {}) => {
-  gaLoaded() && ga('send', 'event', Object.assign({
+  hasGa() && ga('send', 'event', Object.assign({
     eventCategory: 'Error',
     eventAction: err.name,
     eventLabel: `${err.message}\n${err.stack || '(no stack trace)'}`,
@@ -302,13 +302,13 @@ const trackEvent = ({
   eventAction,
   eventLabel = NULL_VALUE,
 }, trackFbq) => {
-  gaLoaded() && ga('send', 'event', {
+  hasGa() && ga('send', 'event', {
     eventCategory,
     eventAction,
     eventLabel,
   });
 
-  fbqLoaded() && trackFbq && fbq('trackCustom', eventCategory, {
+  hasFbq() && trackFbq && fbq('trackCustom', eventCategory, {
     eventAction,
     eventLabel,
   });
@@ -316,13 +316,13 @@ const trackEvent = ({
 
 
 const trackPageview = (pathname) => {
-  gaLoaded() && ga('send', 'pageview', pathname);
+  hasGa() && ga('send', 'pageview', pathname);
 
-  fbqLoaded() && fbq('track', 'PageView');
+  hasFbq() && fbq('track', 'PageView');
 };
 
 
-const all = {init, trackError, trackEvent, trackPageview};
+const func = {init, trackError, trackEvent, trackPageview};
 
 
 ((name, context, definition) => {
@@ -336,8 +336,8 @@ const all = {init, trackError, trackEvent, trackPageview};
     context[name] = definition(false);
   }
 })('analytics', this, (def) => { // eslint-disable-line no-invalid-this
-  const analytics = Object.assign(...Object.keys(all).map((e) => ({
-    [e]: hasWindow() ? all[e] : () => {},
+  const analytics = Object.assign(...Object.keys(func).map((e) => ({
+    [e]: hasWindow() ? func[e] : () => {},
   })));
   if (def) {
     return {...analytics, default: analytics};
