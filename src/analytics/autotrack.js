@@ -39,9 +39,11 @@ const NULL_VALUE = '(not set)';
 
 
 const hasWindow = () => typeof window === 'object' && window;
-const hasFbq = () => typeof window.fbq === 'object' && window.fbq;
-const hasGa = () => typeof window.ga === 'object' && window.ga;
+const hasFbq = () => typeof window.fbq === 'function' && window.fbq;
+const hasGa = () => typeof window.ga === 'function' && window.ga;
 const hasBoth = () => hasFbq() && hasGa();
+// const fbqLoaded = () => fbq && fbq.loaded;
+// const gaLoaded = () => ga && ga.loaded;
 
 
 /**

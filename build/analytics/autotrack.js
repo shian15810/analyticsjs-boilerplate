@@ -15,7 +15,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 // import 'autotrack/lib/plugins/page-visibility-tracker';
 // import 'autotrack/lib/plugins/url-change-tracker';
 
-
 /* global define, fbq, ga */
 
 var TRACKING_ID_FBQ = void 0;
@@ -46,14 +45,17 @@ var hasWindow = function hasWindow() {
   return (typeof window === 'undefined' ? 'undefined' : _typeof(window)) === 'object' && window;
 };
 var hasFbq = function hasFbq() {
-  return _typeof(window.fbq) === 'object' && window.fbq;
+  return typeof window.fbq === 'function' && window.fbq;
 };
 var hasGa = function hasGa() {
-  return _typeof(window.ga) === 'object' && window.ga;
+  return typeof window.ga === 'function' && window.ga;
 };
 var hasBoth = function hasBoth() {
   return hasFbq() && hasGa();
 };
+// const fbqLoaded = () => fbq && fbq.loaded;
+// const gaLoaded = () => ga && ga.loaded;
+
 
 /**
  * A mapping between custom dimension names and their indexes.
@@ -370,7 +372,7 @@ var func = { init: init, trackError: trackError, trackEvent: trackEvent, trackPa
   } else {
     context[name] = definition(false);
   }
-})('analytics', undefined, function (def) {
+})('analytics', this, function (def) {
   // eslint-disable-line no-invalid-this
   var analytics = Object.assign.apply(Object, _toConsumableArray(Object.keys(func).map(function (e) {
     return _defineProperty({}, e, hasWindow() ? func[e] : function () {});
