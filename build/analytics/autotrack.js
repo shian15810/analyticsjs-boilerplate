@@ -4,10 +4,6 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 // Import the individual autotrack plugins you want to use.
 // import 'autotrack/lib/plugins/clean-url-tracker';
 // import 'autotrack/lib/plugins/max-scroll-tracker';
@@ -80,7 +76,8 @@ var metrics = {
   DOM_LOAD_TIME: 'metric2',
   WINDOW_LOAD_TIME: 'metric3',
   PAGE_VISIBLE: 'metric4',
-  MAX_SCROLL_PERCENTAGE: 'metric5'
+  MAX_SCROLL_PERCENTAGE: 'metric5',
+  PAGE_LOADS: 'metric6'
 };
 
 /**
@@ -128,15 +125,16 @@ var init = function init(_ref) {
  *
  *    `fetch('/api.json').catch(trackError);`
  *
- * @param {Error|undefined} err
+ * @param {(Error|Object)=} err
  * @param {Object=} fieldsObj
  */
-var trackError = function trackError(err) {
+var trackError = function trackError() {
+  var err = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var fieldsObj = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   hasGa() && ga('send', 'event', Object.assign({
     eventCategory: 'Error',
-    eventAction: err.name,
+    eventAction: err.name || '(no error name)',
     eventLabel: err.message + '\n' + (err.stack || '(no stack trace)'),
     nonInteraction: true
   }, fieldsObj));
@@ -164,40 +162,38 @@ var trackErrors = function trackErrors() {
   // `window.__e.q`, as specified in `index.html`.
   var loadErrorEvents = window.__e && window.__e.q || [];
 
-  // Use a different eventCategory for uncaught errors.
-  var fieldsObj = { eventCategory: 'Uncaught Error' };
+  var trackErrorEvent = function trackErrorEvent(event) {
+    // Use a different eventCategory for uncaught errors.
+    var fieldsObj = { eventCategory: 'Uncaught Error' };
+
+    // Some browsers don't have an error property, so we fake it.
+    var err = event.error || {
+      message: event.message + ' (' + event.lineno + ':' + event.colno + ')'
+    };
+
+    trackError(err, fieldsObj);
+  };
 
   // Replay any stored load error events.
-  var _iteratorNormalCompletion = true;
-  var _didIteratorError = false;
-  var _iteratorError = undefined;
+  for (var _iterator = loadErrorEvents, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+    var _ref2;
 
-  try {
-    for (var _iterator = loadErrorEvents[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-      var event = _step.value;
-
-      trackError(event.error, fieldsObj);
+    if (_isArray) {
+      if (_i >= _iterator.length) break;
+      _ref2 = _iterator[_i++];
+    } else {
+      _i = _iterator.next();
+      if (_i.done) break;
+      _ref2 = _i.value;
     }
 
-    // Add a new listener to track event immediately.
-  } catch (err) {
-    _didIteratorError = true;
-    _iteratorError = err;
-  } finally {
-    try {
-      if (!_iteratorNormalCompletion && _iterator.return) {
-        _iterator.return();
-      }
-    } finally {
-      if (_didIteratorError) {
-        throw _iteratorError;
-      }
-    }
+    var event = _ref2;
+
+    trackErrorEvent(event);
   }
 
-  window.addEventListener('error', function (event) {
-    trackError(event.error, fieldsObj);
-  });
+  // Add a new listener to track event immediately.
+  window.addEventListener('error', trackErrorEvent);
 };
 
 /**
@@ -216,7 +212,7 @@ var trackCustomDimensions = function trackCustomDimensions() {
   ga(function (tracker) {
     var _tracker$set;
 
-    tracker.set((_tracker$set = {}, _defineProperty(_tracker$set, dimensions.TRACKING_VERSION, TRACKING_VERSION), _defineProperty(_tracker$set, dimensions.CLIENT_ID, tracker.get('clientId')), _defineProperty(_tracker$set, dimensions.WINDOW_ID, uuid()), _tracker$set));
+    tracker.set((_tracker$set = {}, _tracker$set[dimensions.TRACKING_VERSION] = TRACKING_VERSION, _tracker$set[dimensions.CLIENT_ID] = tracker.get('clientId'), _tracker$set[dimensions.WINDOW_ID] = uuid(), _tracker$set));
   });
 
   // Adds tracking to record each the type, time, uuid, and visibility state
@@ -240,6 +236,8 @@ var trackCustomDimensions = function trackCustomDimensions() {
  * respective configuration options.
  */
 var requireAutotrackPlugins = function requireAutotrackPlugins() {
+  var _fieldsObj, _fieldsObj2;
+
   ga('require', 'cleanUrlTracker', {
     stripQuery: true,
     queryDimensionIndex: getDefinitionIndex(dimensions.URL_QUERY_PARAMS),
@@ -254,13 +252,14 @@ var requireAutotrackPlugins = function requireAutotrackPlugins() {
     events: ['click', 'contextmenu']
   });
   ga('require', 'pageVisibilityTracker', {
+    sendInitialPageview: true,
+    pageLoadsMetricIndex: getDefinitionIndex(metrics.PAGE_LOADS),
     visibleMetricIndex: getDefinitionIndex(metrics.PAGE_VISIBLE),
-    sessionTimeout: 30,
     timeZone: TRACKING_TIME_ZONE,
-    fieldsObj: _defineProperty({}, dimensions.HIT_SOURCE, 'pageVisibilityTracker')
+    fieldsObj: (_fieldsObj = {}, _fieldsObj[dimensions.HIT_SOURCE] = 'pageVisibilityTracker', _fieldsObj)
   });
   ga('require', 'urlChangeTracker', {
-    fieldsObj: _defineProperty({}, dimensions.HIT_SOURCE, 'urlChangeTracker')
+    fieldsObj: (_fieldsObj2 = {}, _fieldsObj2[dimensions.HIT_SOURCE] = 'urlChangeTracker', _fieldsObj2)
   });
 };
 
@@ -268,8 +267,6 @@ var requireAutotrackPlugins = function requireAutotrackPlugins() {
  * Sends the initial pageview to Google Analytics.
  */
 var sendInitialPageview = function sendInitialPageview() {
-  ga('send', 'pageview', _defineProperty({}, dimensions.HIT_SOURCE, 'pageload'));
-
   fbq('track', 'PageView');
 };
 
@@ -307,13 +304,14 @@ var sendNavigationTimingMetrics = function sendNavigationTimingMetrics() {
   };
 
   if (allValuesAreValid(responseEnd, domLoaded, windowLoaded)) {
-    var _ga2;
+    var _ga;
 
-    ga('send', 'event', (_ga2 = {
+    ga('send', 'event', (_ga = {
       eventCategory: 'Navigation Timing',
       eventAction: 'track',
+      eventLabel: NULL_VALUE,
       nonInteraction: true
-    }, _defineProperty(_ga2, metrics.RESPONSE_END_TIME, responseEnd), _defineProperty(_ga2, metrics.DOM_LOAD_TIME, domLoaded), _defineProperty(_ga2, metrics.WINDOW_LOAD_TIME, windowLoaded), _ga2));
+    }, _ga[metrics.RESPONSE_END_TIME] = responseEnd, _ga[metrics.DOM_LOAD_TIME] = domLoaded, _ga[metrics.WINDOW_LOAD_TIME] = windowLoaded, _ga));
   }
 };
 
@@ -336,11 +334,11 @@ var uuid = function b(a) {
   return a ? (a ^ Math.random() * 16 >> a / 4).toString(16) : ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, b);
 };
 
-var trackEvent = function trackEvent(_ref2, trackFbq) {
-  var eventCategory = _ref2.eventCategory,
-      eventAction = _ref2.eventAction,
-      _ref2$eventLabel = _ref2.eventLabel,
-      eventLabel = _ref2$eventLabel === undefined ? NULL_VALUE : _ref2$eventLabel;
+var trackEvent = function trackEvent(_ref3, trackFbq) {
+  var eventCategory = _ref3.eventCategory,
+      eventAction = _ref3.eventAction,
+      _ref3$eventLabel = _ref3.eventLabel,
+      eventLabel = _ref3$eventLabel === undefined ? NULL_VALUE : _ref3$eventLabel;
 
   hasGa() && ga('send', 'event', {
     eventCategory: eventCategory,
@@ -374,9 +372,11 @@ var func = { init: init, trackError: trackError, trackEvent: trackEvent, trackPa
   }
 })('analytics', this, function (def) {
   // eslint-disable-line no-invalid-this
-  var analytics = Object.assign.apply(Object, _toConsumableArray(Object.keys(func).map(function (e) {
-    return _defineProperty({}, e, hasWindow() ? func[e] : function () {});
-  })));
+  var analytics = Object.assign.apply(Object, Object.keys(func).map(function (e) {
+    var _ref4;
+
+    return _ref4 = {}, _ref4[e] = hasWindow() ? func[e] : function () {}, _ref4;
+  }));
   if (def) {
     return _extends({}, analytics, { default: analytics });
   }
