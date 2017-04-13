@@ -28,6 +28,13 @@ const ALL_TRACKERS = [
 
 
 /**
+ * Just the trackers with a name matching `prod`. Using an array filter
+ * allows you to have more than one prod tracker if needed.
+ */
+const PROD_TRACKERS = ALL_TRACKERS.filter(({name}) => /prod/.test(name));
+
+
+/**
  * Just the trackers with a name matching `test`. Using an array filter
  * allows you to have more than one test tracker if needed.
  */
@@ -67,6 +74,7 @@ const metrics = {
   WINDOW_LOAD_TIME: 'metric3',
   PAGE_VISIBLE: 'metric4',
   MAX_SCROLL_PERCENTAGE: 'metric5',
+  PAGE_LOADS: 'metric6',
 };
 
 
@@ -96,6 +104,7 @@ const createGaProxy = (trackers) => {
  * (exported so they can be called by other modules if needed).
  */
 export const gaAll = createGaProxy(ALL_TRACKERS);
+export const gaProd = createGaProxy(PROD_TRACKERS);
 export const gaTest = createGaProxy(TEST_TRACKERS);
 
 
@@ -111,7 +120,6 @@ export const init = () => {
   trackErrors();
   trackCustomDimensions();
   requireAutotrackPlugins();
-  sendInitialPageview();
   sendNavigationTimingMetrics();
 };
 
@@ -137,13 +145,13 @@ const createTrackers = () => {
  *
  *    `fetch('/api.json').catch(trackError);`
  *
- * @param {Error|undefined} err
+ * @param {(Error|Object)=} err
  * @param {Object=} fieldsObj
  */
-export const trackError = (err, fieldsObj = {}) => {
+export const trackError = (err = {}, fieldsObj = {}) => {
   gaAll('send', 'event', Object.assign({
     eventCategory: 'Error',
-    eventAction: err.name,
+    eventAction: err.name || '(no error name)',
     eventLabel: `${err.message}\n${err.stack || '(no stack trace)'}`,
     nonInteraction: true,
   }, fieldsObj));
@@ -159,18 +167,25 @@ const trackErrors = () => {
   // `window.__e.q`, as specified in `index.html`.
   const loadErrorEvents = window.__e && window.__e.q || [];
 
-  // Use a different eventCategory for uncaught errors.
-  const fieldsObj = {eventCategory: 'Uncaught Error'};
+  const trackErrorEvent = (event) => {
+    // Use a different eventCategory for uncaught errors.
+    const fieldsObj = {eventCategory: 'Uncaught Error'};
+
+    // Some browsers don't have an error property, so we fake it.
+    const err = event.error || {
+      message: `${event.message} (${event.lineno}:${event.colno})`,
+    };
+
+    trackError(err, fieldsObj);
+  };
 
   // Replay any stored load error events.
   for (let event of loadErrorEvents) {
-    trackError(event.error, fieldsObj);
+    trackErrorEvent(event);
   }
 
   // Add a new listener to track event immediately.
-  window.addEventListener('error', (event) => {
-    trackError(event.error, fieldsObj);
-  });
+  window.addEventListener('error', trackErrorEvent);
 };
 
 
@@ -233,7 +248,9 @@ const requireAutotrackPlugins = () => {
   gaAll('require', 'outboundLinkTracker', {
     events: ['click', 'contextmenu'],
   });
-  gaTest('require', 'pageVisibilityTracker', {
+  gaAll('require', 'pageVisibilityTracker', {
+    sendInitialPageview: true,
+    pageLoadsMetricIndex: getDefinitionIndex(metrics.PAGE_LOADS),
     visibleMetricIndex: getDefinitionIndex(metrics.PAGE_VISIBLE),
     sessionTimeout: 30,
     timeZone: 'America/Los_Angeles',
@@ -246,51 +263,44 @@ const requireAutotrackPlugins = () => {
 
 
 /**
- * Sends the initial pageview to Google Analytics.
- */
-const sendInitialPageview = () => {
-  gaAll('send', 'pageview', {[dimensions.HIT_SOURCE]: 'pageload'});
-};
-
-
-/**
  * Gets the DOM and window load times and sends them as custom metrics to
  * Google Analytics via an event hit.
  */
- const sendNavigationTimingMetrics = () => {
-   // Only track performance in supporting browsers.
-   if (!(window.performance && window.performance.timing)) return;
+const sendNavigationTimingMetrics = () => {
+  // Only track performance in supporting browsers.
+  if (!(window.performance && window.performance.timing)) return;
 
-   // If the window hasn't loaded, run this function after the `load` event.
-   if (document.readyState != 'complete') {
-     window.addEventListener('load', sendNavigationTimingMetrics);
-     return;
-   }
+  // If the window hasn't loaded, run this function after the `load` event.
+  if (document.readyState != 'complete') {
+    window.addEventListener('load', sendNavigationTimingMetrics);
+    return;
+  }
 
-   const nt = performance.timing;
-   const navStart = nt.navigationStart;
+  const nt = performance.timing;
+  const navStart = nt.navigationStart;
 
-   const responseEnd = Math.round(nt.responseEnd - navStart);
-   const domLoaded = Math.round(nt.domContentLoadedEventStart - navStart);
-   const windowLoaded = Math.round(nt.loadEventStart - navStart);
+  const responseEnd = Math.round(nt.responseEnd - navStart);
+  const domLoaded = Math.round(nt.domContentLoadedEventStart - navStart);
+  const windowLoaded = Math.round(nt.loadEventStart - navStart);
 
-   // In some edge cases browsers return very obviously incorrect NT values,
-   // e.g. 0, negative, or future times. This validates values before sending.
-   const allValuesAreValid = (...values) => {
-     return values.every((value) => value > 0 && value < 6e6);
-   };
+  // In some edge cases browsers return very obviously incorrect NT values,
+  // e.g. 0, negative, or future times. This validates values before sending.
+  const allValuesAreValid = (...values) => {
+    return values.every((value) => value > 0 && value < 6e6);
+  };
 
-   if (allValuesAreValid(responseEnd, domLoaded, windowLoaded)) {
-     gaTest('send', 'event', {
-       eventCategory: 'Navigation Timing',
-       eventAction: 'track',
-       nonInteraction: true,
-       [metrics.RESPONSE_END_TIME]: responseEnd,
-       [metrics.DOM_LOAD_TIME]: domLoaded,
-       [metrics.WINDOW_LOAD_TIME]: windowLoaded,
-     });
-   }
- };
+  if (allValuesAreValid(responseEnd, domLoaded, windowLoaded)) {
+    gaProd('send', 'event', {
+      eventCategory: 'Navigation Timing',
+      eventAction: 'track',
+      eventLabel: NULL_VALUE,
+      nonInteraction: true,
+      [metrics.RESPONSE_END_TIME]: responseEnd,
+      [metrics.DOM_LOAD_TIME]: domLoaded,
+      [metrics.WINDOW_LOAD_TIME]: windowLoaded,
+    });
+  }
+};
 
 
 /**

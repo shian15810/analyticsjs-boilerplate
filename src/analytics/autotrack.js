@@ -71,6 +71,7 @@ const metrics = {
   WINDOW_LOAD_TIME: 'metric3',
   PAGE_VISIBLE: 'metric4',
   MAX_SCROLL_PERCENTAGE: 'metric5',
+  PAGE_LOADS: 'metric6',
 };
 
 
@@ -110,13 +111,13 @@ const init = ({
  *
  *    `fetch('/api.json').catch(trackError);`
  *
- * @param {Error|undefined} err
+ * @param {(Error|Object)=} err
  * @param {Object=} fieldsObj
  */
-const trackError = (err, fieldsObj = {}) => {
+const trackError = (err = {}, fieldsObj = {}) => {
   hasGa() && ga('send', 'event', Object.assign({
     eventCategory: 'Error',
-    eventAction: err.name,
+    eventAction: err.name || '(no error name)',
     eventLabel: `${err.message}\n${err.stack || '(no stack trace)'}`,
     nonInteraction: true,
   }, fieldsObj));
@@ -146,18 +147,25 @@ const trackErrors = () => {
   // `window.__e.q`, as specified in `index.html`.
   const loadErrorEvents = window.__e && window.__e.q || [];
 
-  // Use a different eventCategory for uncaught errors.
-  const fieldsObj = {eventCategory: 'Uncaught Error'};
+  const trackErrorEvent = (event) => {
+    // Use a different eventCategory for uncaught errors.
+    const fieldsObj = {eventCategory: 'Uncaught Error'};
+
+    // Some browsers don't have an error property, so we fake it.
+    const err = event.error || {
+      message: `${event.message} (${event.lineno}:${event.colno})`,
+    };
+
+    trackError(err, fieldsObj);
+  };
 
   // Replay any stored load error events.
   for (let event of loadErrorEvents) {
-    trackError(event.error, fieldsObj);
+    trackErrorEvent(event);
   }
 
   // Add a new listener to track event immediately.
-  window.addEventListener('error', (event) => {
-    trackError(event.error, fieldsObj);
-  });
+  window.addEventListener('error', trackErrorEvent);
 };
 
 
@@ -218,8 +226,9 @@ const requireAutotrackPlugins = () => {
     events: ['click', 'contextmenu'],
   });
   ga('require', 'pageVisibilityTracker', {
+    sendInitialPageview: true,
+    pageLoadsMetricIndex: getDefinitionIndex(metrics.PAGE_LOADS),
     visibleMetricIndex: getDefinitionIndex(metrics.PAGE_VISIBLE),
-    sessionTimeout: 30,
     timeZone: TRACKING_TIME_ZONE,
     fieldsObj: {[dimensions.HIT_SOURCE]: 'pageVisibilityTracker'},
   });
@@ -233,8 +242,6 @@ const requireAutotrackPlugins = () => {
  * Sends the initial pageview to Google Analytics.
  */
 const sendInitialPageview = () => {
-  ga('send', 'pageview', {[dimensions.HIT_SOURCE]: 'pageload'});
-
   fbq('track', 'PageView');
 };
 
@@ -270,6 +277,7 @@ const sendNavigationTimingMetrics = () => {
     ga('send', 'event', {
       eventCategory: 'Navigation Timing',
       eventAction: 'track',
+      eventLabel: NULL_VALUE,
       nonInteraction: true,
       [metrics.RESPONSE_END_TIME]: responseEnd,
       [metrics.DOM_LOAD_TIME]: domLoaded,
